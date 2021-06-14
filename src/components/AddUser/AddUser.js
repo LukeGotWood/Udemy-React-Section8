@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Fragment, useRef } from "react";
 
 import Button from "../Button/Button";
 import Card from "../Card/Card";
@@ -7,10 +7,8 @@ import ErrorModal from "../ErrorModal/ErrorModal";
 import styles from "./AddUser.module.css";
 
 function AddUser(props) {
-  const [userInput, setUserInput] = useState({
-    enteredUsername: "",
-    enteredAge: "",
-  });
+  const nameInputRef = useRef();
+  const ageInputRef = useRef();
 
   const [error, setError] = useState({
     errorOccured: false,
@@ -22,8 +20,8 @@ function AddUser(props) {
     event.preventDefault();
 
     if (
-      userInput.enteredUsername.trim().length === 0 ||
-      userInput.enteredAge.trim().length === 0
+      nameInputRef.current.value.trim().length === 0 ||
+      ageInputRef.current.value.trim().length === 0
     ) {
       setError({
         errorOccured: true,
@@ -33,7 +31,7 @@ function AddUser(props) {
       return;
     }
 
-    if (+userInput.enteredAge < 1) {
+    if (+ageInputRef.current.value < 1) {
       setError({
         errorOccured: true,
         title: "Invalid Age",
@@ -43,34 +41,14 @@ function AddUser(props) {
     }
 
     const newUser = {
-      name: userInput.enteredUsername,
-      age: userInput.enteredAge,
+      name: nameInputRef.current.value,
+      age: ageInputRef.current.value,
     };
 
     props.onAddUser(newUser);
-
-    setUserInput({
-      enteredUsername: "",
-      enteredAge: "",
-    });
-  }
-
-  function usernameChangeHandler(event) {
-    setUserInput((prevState) => {
-      return {
-        ...prevState,
-        enteredUsername: event.target.value,
-      };
-    });
-  }
-
-  function ageChangeHandler(event) {
-    setUserInput((prevState) => {
-      return {
-        ...prevState,
-        enteredAge: event.target.value,
-      };
-    });
+    
+    nameInputRef.current.value = "";
+    ageInputRef.current.value = "";
   }
 
   function errorHandler(event) {
@@ -82,7 +60,7 @@ function AddUser(props) {
   }
 
   return (
-    <div>
+    <Fragment>
       {error.errorOccured && (
         <ErrorModal
           title={error.title}
@@ -96,20 +74,18 @@ function AddUser(props) {
           <input
             id="username"
             type="text"
-            value={userInput.enteredUsername}
-            onChange={usernameChangeHandler}
+            ref={nameInputRef}
           />
           <label htmlFor="age">Age (Years)</label>
           <input
             id="age"
             type="number"
-            value={userInput.enteredAge}
-            onChange={ageChangeHandler}
+            ref={ageInputRef}
           />
           <Button type="submit">Add User</Button>
         </form>
       </Card>
-    </div>
+    </Fragment>
   );
 }
 
